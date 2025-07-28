@@ -26,7 +26,7 @@ export default function RootLayout({
         >
           <div className="flex h-full min-h-screen flex-col">
             <Header />
-            <main className="flex flex-1 flex-col border border-cyan-300 px-4 pt-8 xl:px-8">
+            <main className="flex flex-1 flex-col px-4 pt-8 xl:px-8">
               <div className="flex-1 flex flex-col">
                 <MenuTab />
                 {/* <div className="flex-1 border border-red-400"></div> */}
