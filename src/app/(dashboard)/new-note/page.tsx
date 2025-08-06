@@ -1,4 +1,4 @@
-import NoteForm from "@/components/NoteForm";
+import NoteForm from "@/app/(dashboard)/new-note/NoteForm";
 import { Textarea } from "@/components/ui/textarea";
 import React from "react";
 

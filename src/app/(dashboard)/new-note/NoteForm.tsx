@@ -13,10 +13,12 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { useEffect, useState } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
-import { Input } from "./ui/input";
+import { Input } from "../../../components/ui/input";
+
+const supabase = createSupabaseBrowserClient();
 
 const formSchema = z.object({
   title: z.string().min(1, "Title cannot be empty"),
@@ -27,6 +29,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function NoteForm() {
   const [loading, setLoading] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -36,14 +39,33 @@ export default function NoteForm() {
     },
   });
 
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+      } else if (error) {
+        console.error("Failed to fetch user:", error.message);
+        toast.error("Authentication error. Please log in again.");
+      }
+    };
+
+    getUser();
+  }, []);
+
   const handleSubmit = form.handleSubmit(
     async (values) => {
+       if (!userId) {
+        toast.error("User not authenticated.");
+        return;
+      }
+
       setLoading(true);
 
       const { error } = await supabase.from("notes").insert({
         title: values.title,
         content: values.content,
-        user_id: "11111111-1111-1111-1111-111111111111", // replace with actual user_id
+        user_id: userId,
       });
 
       setLoading(false);

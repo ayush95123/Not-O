@@ -5,8 +5,12 @@ import React, { use } from "react";
 import { DarkModeToggle } from "./DarkModeToggle";
 import { useTheme } from "next-themes";
 import Logo from "./Logo";
+import { LogoutButton } from "./LogoutButton";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-function Header() {
+export default async function Header() {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
   return (
     <header
       className="bg-popover relative flex h-24 w-full items-center justify-between px-3 sm:px-8"
@@ -20,11 +24,10 @@ function Header() {
         </h1>
       </Link>
       <div className="flex gap-4">
-        {/* Login/Logout */}
+        {user && <LogoutButton/>}
         <DarkModeToggle />
       </div>
     </header>
   );
 }
 
-export default Header;

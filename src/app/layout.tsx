@@ -4,7 +4,7 @@ import "@/styles/globals.css";
 import { ThemeProvider } from "@/provider/ThemeProvider";
 import { Toaster } from "sonner";
 import Header from "@/components/Header";
-import MenuTab from "@/components/MenuTab";
+import MenuTab from "@/app/(dashboard)/MenuTab";
 
 export const metadata: Metadata = {
   title: "Notes App",
@@ -28,8 +28,6 @@ export default function RootLayout({
             <Header />
             <main className="flex flex-1 flex-col px-4 pt-8 xl:px-8">
               <div className="flex-1 flex flex-col">
-                <MenuTab />
-                {/* <div className="flex-1 border border-red-400"></div> */}
                 {children}
               </div>
             </main>
