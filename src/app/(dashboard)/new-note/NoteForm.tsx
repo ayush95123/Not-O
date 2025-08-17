@@ -9,16 +9,12 @@ import {
   FormItem,
   FormLabel,
   FormControl,
-  FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Input } from "../../../components/ui/input";
-
-const supabase = createSupabaseBrowserClient();
 
 const formSchema = z.object({
   title: z.string().min(1, "Title cannot be empty"),
@@ -29,7 +25,6 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function NoteForm() {
   const [loading, setLoading] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -39,47 +34,31 @@ export default function NoteForm() {
     },
   });
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (user) {
-        setUserId(user.id);
-      } else if (error) {
-        console.error("Failed to fetch user:", error.message);
-        toast.error("Authentication error. Please log in again.");
-      }
-    };
-
-    getUser();
-  }, []);
-
   const handleSubmit = form.handleSubmit(
     async (values) => {
-       if (!userId) {
-        toast.error("User not authenticated.");
-        return;
-      }
-
       setLoading(true);
 
-      const { error } = await supabase.from("notes").insert({
-        title: values.title,
-        content: values.content,
-        user_id: userId,
-      });
-
-      setLoading(false);
-
-      if (error) {
-        toast.error("Failed to add note: " + error.message);
-        return;
+      try {
+        const res = await fetch("/api/notes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(values),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          toast.error(data.error || "Failed to add note");
+          return;
+        }
+        toast.success("Note added successfully");
+        form.reset();
+      } catch (err: any) {
+        toast.error("Something went wrong: " + err.message);
+      } finally {
+        setLoading(false);
       }
-
-      toast.success("Note added successfully");
-      form.reset();
     },
     (errors) => {
-      // Show the first validation error as a toast
+      // Showing the first validation error as a toast
       const firstError = Object.values(errors)[0];
       if (firstError?.message) {
         toast.error(firstError.message);
@@ -102,12 +81,11 @@ export default function NoteForm() {
             <FormItem className="flex h-2/12 w-full flex-col justify-items-start gap-y-3">
               <FormLabel className="ml-1">Note Title 🔖</FormLabel>
               <FormControl className="h-full">
-                {/* <Textarea
+                <Input
+                  disabled={loading}
                   placeholder="Enter note title..."
-                  className="h-10 resize-none"
                   {...field}
-                /> */}
-                <Input disabled={loading} placeholder="Enter note title..." {...field} />
+                />
               </FormControl>
             </FormItem>
           )}
@@ -130,7 +108,7 @@ export default function NoteForm() {
           )}
         />
 
-        <Button disabled={loading} type="submit" className="mb-5 px-10">
+        <Button disabled={loading} aria-busy={loading} type="submit" className="mb-5 px-10">
           {loading ? "Submitting..." : "Submit"}
         </Button>
       </form>
