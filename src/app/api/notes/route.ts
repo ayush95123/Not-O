@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
-import { addNote } from "@/services/noteService";
+import { addNote, getNotes } from "@/services/noteService";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
-    const body = await req.json();
-    const { title, content } = body;
+    const { title, content } = await req.json();
 
     if (!title || !content) {
       return NextResponse.json(
@@ -14,19 +21,27 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔐 Get authenticated user
-    const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     await addNote(user.id, title, content);
 
     return NextResponse.json({ success: true, message: "Note added" });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
+export async function GET() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const notes = await getNotes(user.id);
+    return NextResponse.json({ notes }, { status: 200 });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

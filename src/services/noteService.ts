@@ -14,3 +14,15 @@ export async function addNote(userId: string, title: string, content: string) {
 
   return { success: true };
 }
+
+export async function getNotes(userId: string) {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("notes")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return data;
+}
