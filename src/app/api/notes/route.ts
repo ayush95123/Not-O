@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { addNote, getNotes } from "@/services/noteService";
+import { addNote, getNotes, updateNote } from "@/services/noteService";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
@@ -42,6 +42,30 @@ export async function GET() {
   try {
     const notes = await getNotes(user.id);
     return NextResponse.json({ notes }, { status: 200 });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
+export async function PUT(req: Request) {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { id, title, content } = await req.json();
+    if (!id || !title || !content) {
+      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    }
+
+    await updateNote(id, title, content);
+
+    return NextResponse.json({ success: true, message: "Note updated" });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

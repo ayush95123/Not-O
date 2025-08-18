@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/provider/ThemeProvider";
 import { Toaster } from "sonner";
 import Header from "@/components/Header";
 import MenuTab from "@/app/(dashboard)/MenuTab";
+import { QueryProvider } from "@/provider/QueryProvider";
 
 export const metadata: Metadata = {
   title: "Notes App",
@@ -24,15 +25,15 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex h-full min-h-screen flex-col">
-            <Header />
-            <main className="flex flex-1 flex-col px-4 pt-8 xl:px-8">
-              <div className="flex-1 flex flex-col">
-                {children}
-              </div>
-            </main>
-          </div>
-          <Toaster />
+          <QueryProvider>
+            <div className="flex h-full min-h-screen flex-col">
+              <Header />
+              <main className="flex flex-1 flex-col px-4 pt-8 xl:px-8">
+                <div className="flex flex-1 flex-col">{children}</div>
+              </main>
+            </div>
+            <Toaster />
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

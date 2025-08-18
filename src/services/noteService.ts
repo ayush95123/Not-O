@@ -1,4 +1,3 @@
-// src/services/noteService.ts
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function addNote(userId: string, title: string, content: string) {
@@ -25,4 +24,21 @@ export async function getNotes(userId: string) {
 
   if (error) throw new Error(error.message);
   return data;
+}
+
+export async function updateNote(id: string, title: string, content: string) {
+  const supabase = await createSupabaseServerClient();
+
+  const { error } = await supabase
+    .from("notes")
+    .update({ title, content })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return { success: true };
 }
