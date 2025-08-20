@@ -3,15 +3,16 @@
 import NotesList from "@/components/NoteCard";
 import { useQuery } from "@tanstack/react-query";
 
-async function fetchNotes() {
-  const res = await fetch("/api/notes", { method: "GET" });
+async function fetchNotes({ queryKey }: { queryKey: [string, { archived: boolean }] }) {
+  const [_key, { archived }] = queryKey;
+  const res = await fetch(`/api/notes?archived=${archived}`, { method: "GET" });
   if (!res.ok) throw new Error("Failed to fetch notes");
   return res.json();
 }
 
 export default function SavedNotes() {
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["notes"], // unique key for caching
+    queryKey: ["notes", { archived: false }], // unique key for caching
     queryFn: fetchNotes,
   });
 

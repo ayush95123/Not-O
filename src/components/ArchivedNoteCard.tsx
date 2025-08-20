@@ -1,55 +1,47 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trash2, Archive } from "lucide-react";
+import { Trash2, RotateCcw } from "lucide-react";
 
-type NoteCardProps = {
+type ArchivedNoteCardProps = {
   id: string;
   title: string;
   content?: string;
   createdAt: string;
   onDelete?: (id: string) => void;
-  onArchive?: (id: string) => void;
-  onClick?: () => void;
+  onRestore?: (id: string) => void;
 };
 
-export default function NoteCard({
+export default function ArchivedNoteCard({
   id,
   title,
   content,
   createdAt,
   onDelete,
-  onArchive,
-  onClick,
-}: NoteCardProps) {
+  onRestore,
+}: ArchivedNoteCardProps) {
   return (
-    <Card
-      onClick={onClick}
-      className="bg-background rounded-2xl shadow-sm transition hover:cursor-pointer hover:shadow-md"
-    >
+    <Card className="bg-background rounded-2xl shadow-sm transition hover:shadow-md">
       <CardHeader className="flex flex-row items-start justify-between">
         <CardTitle className="text-lg font-semibold">{title}</CardTitle>
         <div className="flex gap-2">
           <Button
-            size="icon"
-            variant="ghost"
-            onClick={(e) => {
-              e.stopPropagation();
-              onArchive?.(id);
-            }}
-            className="h-8 w-8 hover:cursor-pointer"
+            size="sm"
+            variant="outline"
+            className="text-green-600 hover:bg-green-100"
+            onClick={() => onRestore?.(id)}
           >
-            <Archive className="h-4 w-4" />
+            <RotateCcw className="h-4 w-4 mr-1" />
+            Restore
           </Button>
           <Button
-            size="icon"
-            variant="ghost"
+            size="sm"
+            variant="destructive"
             onClick={() => onDelete?.(id)}
-            className="h-8 w-8 text-red-500 hover:cursor-pointer hover:text-red-600"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4 mr-1" />
+            Delete
           </Button>
         </div>
       </CardHeader>
@@ -61,9 +53,9 @@ export default function NoteCard({
         ) : (
           <p className="text-muted-foreground text-sm italic">No content</p>
         )}
-        <Badge variant="outline" className="text-xs">
+        <p className="text-xs text-gray-500">
           {new Date(createdAt).toLocaleDateString()}
-        </Badge>
+        </p>
       </CardContent>
     </Card>
   );

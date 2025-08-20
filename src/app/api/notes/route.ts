@@ -29,7 +29,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -40,7 +40,12 @@ export async function GET() {
   }
 
   try {
-    const notes = await getNotes(user.id);
+    const url = new URL(req.url);
+    const archivedParam = url.searchParams.get("archived");
+    const archived =
+      archivedParam === null ? undefined : archivedParam === "true";
+
+    const notes = await getNotes(user.id, archived);
     return NextResponse.json({ notes }, { status: 200 });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
