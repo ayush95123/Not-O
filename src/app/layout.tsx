@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import { ThemeProvider } from "@/provider/ThemeProvider";
 import { Toaster } from "sonner";
 import Header from "@/components/Header";
-import MenuTab from "@/app/(dashboard)/MenuTab";
 import { QueryProvider } from "@/provider/QueryProvider";
 
 export const metadata: Metadata = {
